@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.linda.jwt.repository.UserRepositoryrepository.UserRepository">
+<insert id="save">
+INSERT INTO user(username, password, email, name, gender, phone, address, detail_address, birthday, total_amount, role, cancel, profile, createDate)
+	VALUES(#{username},#{password},#{email}, #{name}, #{gender}, #{phone}, #{address}, {detail_address}, {birthday}, {total_amount}, {role}, {cancel}, {profile}, now())
+</insert>
+
+<select id="login" resultType="com.linda.jwt.model.User">
+      SELECT id, username, email, name, gender, phone, address, detail_address, birthday, total_amount, role, cancel, profile, createDate FROM user WHERE username = #{username} AND password = #{password}
+   </select>
+ 
+</mapper> 
