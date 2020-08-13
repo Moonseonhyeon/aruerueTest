@@ -1,6 +1,8 @@
 package com.linda.jwt.config.jwt;
 
 import java.io.IOException;
+import java.security.Principal;
+import java.util.Date;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -13,7 +15,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.linda.jwt.config.auth.PrincipalDetails;
 import com.linda.jwt.controller.dto.LoginRequestDto;
 
 import lombok.RequiredArgsConstructor;
@@ -26,17 +31,18 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
-		System.out.println("attemptAuthentication");
+		System.out.println("JwtAuthenticationFilter - attemptAuthentication");
 		
 		//request에 있는 username과 password를 파싱해서 자바 오브젝트로 받기
-		ObjectMapper om = new ObjectMapper();
+		ObjectMapper om = new ObjectMapper(); //gson쓸 필요가 없네~!
 		LoginRequestDto loginRequestDto = null;
 		
 		//리퀘스트 안에 있는 정보 파싱
 		try {
 			//InputStream으로 받는 데이터를 Dto로 바꿈
 			//useranme, password가 저장됨.
-			loginRequestDto = om.readValue(request.getInputStream(), LoginRequestDto.class);			
+			loginRequestDto = om.readValue(request.getInputStream(), LoginRequestDto.class);	
+			System.out.println("JwtAuthenticationFilter - attemptAuthentication - Dto : "+ loginRequestDto);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -58,6 +64,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		Authentication authentication = authenticationManager.authenticate(authenticationToken);
 		//provider의 일을 위임하고		
 		
+		PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+		System.out.println("Authentication : " + principal.getUser().getUsername());
+		
 		return authentication;
 	}
 	
@@ -66,8 +75,17 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
+		
+		PrincipalDetails principalDetails = (PrincipalDetails)authResult.getPrincipal();
 	
-		super.successfulAuthentication(request, response, chain, authResult);
+		String jwtToken = JWT.create()
+				.withSubject(principalDetails.getUsername())//sub
+				.withExpiresAt(new Date(System.currentTimeMillis()+JwtProperties.EXPIRATION_TIME)) //만료가 지금으로부터 얼마
+				.withClaim("id", principalDetails.getUser().getId()) //PK 비공개클레임
+				.withClaim("username", principalDetails.getUser().getUsername())
+				.sign(Algorithm.HMAC512(JwtProperties.SECRET))
+				;		
+		response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtToken); //헤더
 	}
 
 }

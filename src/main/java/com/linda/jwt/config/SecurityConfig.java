@@ -9,12 +9,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.linda.jwt.config.jwt.JwtAuthenticationFilter;
+import com.linda.jwt.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
+	
+	private final UserRepository userRepository;
 	
 	@Bean
 	BCryptPasswordEncoder passwordEncoder() {
