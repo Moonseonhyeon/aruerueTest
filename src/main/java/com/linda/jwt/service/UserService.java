@@ -1,5 +1,6 @@
 package com.linda.jwt.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -8,11 +9,13 @@ import com.linda.jwt.repository.UserRepository;
 
 import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
+//@AllArgsConstructor
 @Service
 public class UserService {
 
-	private final UserRepository userRepository;
+	//private final UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
 
 	@Transactional
 	public void 회원가입(User user) {

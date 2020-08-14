@@ -55,9 +55,10 @@ public class RestApiController {
 
 
 	  @PostMapping("join") 
-	  public String join(@RequestBody User user) {
+	  public @ResponseBody String join(@RequestBody User user) {
 	  user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-	  user.setRole("ROLE_USER"); userService.회원가입(user); 
+	  user.setRole("ROLE_USER"); 
+	  userService.회원가입(user); 
 	  return "회원가입 완료"; }
 	 	
 

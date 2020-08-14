@@ -21,7 +21,7 @@ public class User {
 	private String gender;
 	private String phone;
 	private String address;
-	private String detailaddress;
+	private String detail_address;
 	private Timestamp birthday;
 	private int total_amount;
 	private String role;
